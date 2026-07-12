@@ -1,0 +1,191 @@
+:root {
+  --bg: #131313;
+  --toc-inactive: rgba(255, 255, 255, 0.3);
+  --toc-active: rgba(255, 255, 255, 1);
+  --page-size: min(55vh, 31vw);
+  --edge-max: calc(var(--page-size) * 0.02);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Table of contents */
+#toc {
+  position: absolute;
+  left: 3.4vw;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9vh;
+  z-index: 5;
+}
+
+.toc-item {
+  appearance: none;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(11px, 0.8vw, 15px);
+  line-height: 1.5;
+  color: var(--toc-inactive);
+  cursor: pointer;
+  transition: color 0.35s ease;
+}
+
+.toc-item:hover {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.toc-item.active {
+  color: var(--toc-active);
+}
+
+/* Book stage: a clipping viewport that, at rest, shows either one
+   page-width (closed cover / back cover) or the full spread. StPageFlip
+   always paints a full two-page-wide canvas (with a white fill under the
+   empty slot when only the cover is shown), so we clip that empty half
+   away instead of trying to hide it with CSS on the canvas itself.
+   While a flip/drag/hover-corner animation is running, StPageFlip draws
+   the turning page as a free-floating overlay that naturally bulges
+   outside the flat page rectangle - so clipping is switched off for that
+   window (see `.clipped` toggling in main.ts) to let it render naturally. */
+#stage-wrap {
+  position: absolute;
+  left: 50%;
+  top: 47.7%;
+  height: var(--page-size);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: stretch;
+  filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.55));
+  z-index: 1;
+}
+
+#stage {
+  position: relative;
+  width: calc(var(--page-size) * 2);
+  height: var(--page-size);
+  overflow: visible;
+}
+
+#stage.clipped {
+  width: var(--page-size);
+  overflow: hidden;
+}
+
+#book {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--page-size) * 2);
+  height: var(--page-size);
+}
+
+#stage.clipped.cover-front #book {
+  transform: translateX(-50%);
+}
+
+#book :where(canvas) {
+  cursor: pointer;
+}
+
+/* Page-edge thickness: a paper-stack texture at the outer edges of the
+   book, sized proportionally to how many pages have been turned vs.
+   remain, like the fore-edge of a physical book. */
+.page-edge {
+  flex: none;
+  height: 100%;
+  width: 0;
+  transition: width 0.4s ease;
+  background-image: repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.16) 0px,
+      rgba(0, 0, 0, 0.16) 1px,
+      rgba(255, 255, 255, 0.55) 1px,
+      rgba(255, 255, 255, 0.55) 2px,
+      rgba(0, 0, 0, 0.06) 2px,
+      rgba(0, 0, 0, 0.06) 3px,
+      transparent 3px,
+      transparent 4px
+    ),
+    linear-gradient(180deg, #e9e9e9, #d4d4d4 50%, #e9e9e9);
+}
+
+#edge-left {
+  width: calc(var(--edge-max) * var(--ratio, 0));
+  border-radius: 3px 0 0 3px;
+}
+
+#edge-right {
+  width: calc(var(--edge-max) * var(--ratio, 0));
+  border-radius: 0 3px 3px 0;
+}
+
+/* Progress bar: a single pill-shaped fill that both shows how far the
+   book has been read and doubles as the position indicator, riding on
+   top of a thin, muted track. */
+#progress {
+  position: absolute;
+  left: 50%;
+  top: 83.4vh;
+  transform: translateX(-50%);
+  width: 45vw;
+  min-width: 260px;
+  max-width: 900px;
+  z-index: 5;
+}
+
+#progress-track {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+#progress-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+#progress-fill {
+  position: absolute;
+  left: 0;
+  height: 10px;
+  min-width: 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  width: 0%;
+  pointer-events: none;
+}

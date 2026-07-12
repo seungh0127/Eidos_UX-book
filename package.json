@@ -1,0 +1,25 @@
+{
+  "name": "eidos-ux-book",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^6.4.3"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.2",
+    "page-flip": "^2.0.7",
+    "pdfjs-dist": "^4.8.69"
+  }
+}
