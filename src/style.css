@@ -4,7 +4,7 @@
   --toc-active: rgba(255, 255, 255, 1);
   --page-size: min(55vh, 31vw);
   --edge-max: calc(var(--page-size) * 0.02);
-  --progress-bar-height: 6px;
+  --progress-bar-height: 8px;
   --progress-pill-height: 8px;
   --progress-pill-width: 38px;
 }
