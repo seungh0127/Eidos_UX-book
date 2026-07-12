@@ -5,7 +5,8 @@
   --page-size: min(55vh, 31vw);
   --edge-max: calc(var(--page-size) * 0.02);
   --progress-bar-height: 6px;
-  --progress-pill-width: 48px;
+  --progress-pill-height: 8px;
+  --progress-pill-width: 38px;
 }
 
 * {
@@ -56,10 +57,6 @@ body {
   color: var(--toc-inactive);
   cursor: pointer;
   transition: color 0.35s ease;
-}
-
-.toc-item:hover {
-  color: rgba(255, 255, 255, 0.65);
 }
 
 .toc-item.active {
@@ -185,7 +182,7 @@ body {
   position: absolute;
   left: calc((100% - var(--progress-pill-width)) * var(--seek, 0));
   width: var(--progress-pill-width);
-  height: var(--progress-bar-height);
+  height: var(--progress-pill-height);
   border-radius: 999px;
   background: #ffffff;
   pointer-events: none;
