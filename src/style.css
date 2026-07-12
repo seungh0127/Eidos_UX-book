@@ -4,6 +4,8 @@
   --toc-active: rgba(255, 255, 255, 1);
   --page-size: min(55vh, 31vw);
   --edge-max: calc(var(--page-size) * 0.02);
+  --progress-bar-height: 6px;
+  --progress-pill-width: 48px;
 }
 
 * {
@@ -145,9 +147,9 @@ body {
   border-radius: 0 3px 3px 0;
 }
 
-/* Progress bar: a single pill-shaped fill that both shows how far the
-   book has been read and doubles as the position indicator, riding on
-   top of a thin, muted track. */
+/* Progress bar: track and the current-position pill share the exact
+   same height; the pill has a fixed width and just slides along the
+   track as the current page changes (dragging it seeks in real time). */
 #progress {
   position: absolute;
   left: 50%;
@@ -174,18 +176,17 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  height: 4px;
+  height: var(--progress-bar-height);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.18);
 }
 
 #progress-fill {
   position: absolute;
-  left: 0;
-  height: 10px;
-  min-width: 28px;
+  left: calc((100% - var(--progress-pill-width)) * var(--seek, 0));
+  width: var(--progress-pill-width);
+  height: var(--progress-bar-height);
   border-radius: 999px;
   background: #ffffff;
-  width: 0%;
   pointer-events: none;
 }

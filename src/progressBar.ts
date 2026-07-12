@@ -20,8 +20,11 @@ export function createProgressBar(
   }
 
   function renderRatio(ratio: number) {
-    const percent = Math.min(Math.max(ratio, 0), 1) * 100;
-    fill.style.width = `${percent}%`;
+    const clamped = Math.min(Math.max(ratio, 0), 1);
+    // The pill has a fixed CSS width, so its travel range is the track
+    // width minus its own width (see `calc()` on #progress-fill) -
+    // otherwise it would overshoot past the track at either end.
+    fill.style.setProperty("--seek", clamped.toFixed(4));
   }
 
   function ratioFromEvent(clientX: number): number {
@@ -29,25 +32,29 @@ export function createProgressBar(
     return (clientX - rect.left) / rect.width;
   }
 
+  // Drives the page turn live as the bar is dragged, not just on release.
+  function seekFromEvent(clientX: number) {
+    const ratio = ratioFromEvent(clientX);
+    renderRatio(ratio);
+    onSeek(ratioToPage(ratio));
+  }
+
   function handlePointerDown(event: PointerEvent) {
     dragging = true;
     track.setPointerCapture(event.pointerId);
-    const ratio = ratioFromEvent(event.clientX);
-    renderRatio(ratio);
+    seekFromEvent(event.clientX);
   }
 
   function handlePointerMove(event: PointerEvent) {
     if (!dragging) return;
-    const ratio = ratioFromEvent(event.clientX);
-    renderRatio(ratio);
+    seekFromEvent(event.clientX);
   }
 
   function handlePointerUp(event: PointerEvent) {
     if (!dragging) return;
     dragging = false;
     track.releasePointerCapture(event.pointerId);
-    const ratio = ratioFromEvent(event.clientX);
-    onSeek(ratioToPage(ratio));
+    seekFromEvent(event.clientX);
   }
 
   track.addEventListener("pointerdown", handlePointerDown);

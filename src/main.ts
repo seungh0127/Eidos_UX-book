@@ -47,7 +47,7 @@ const progressBar = createProgressBar(
   progressTrack,
   progressFill,
   TOTAL_PAGES,
-  (page) => book.flipToPage(page)
+  (page) => book.jumpToPage(page)
 );
 
 function handlePagesChange(pages: number[]) {

@@ -17,7 +17,10 @@ function visiblePagesFor(currentPage: number): number[] {
 }
 
 export interface BookController {
+  /** Animated page turn, used for discrete navigation (e.g. TOC clicks). */
   flipToPage(page: number): void;
+  /** Instant, unanimated jump, used while scrubbing the progress bar. */
+  jumpToPage(page: number): void;
   getVisiblePages(): number[];
   onChange(callback: (pages: number[]) => void): void;
   /** Fires whenever the flip/drag/hover-corner animation starts or stops. */
@@ -71,6 +74,10 @@ export function createBook(container: HTMLElement): BookController {
     flipToPage(page) {
       const clamped = Math.min(Math.max(Math.round(page), 1), TOTAL_PAGES);
       pageFlip.flip(clamped - 1);
+    },
+    jumpToPage(page) {
+      const clamped = Math.min(Math.max(Math.round(page), 1), TOTAL_PAGES);
+      pageFlip.turnToPage(clamped - 1);
     },
     getVisiblePages() {
       return visiblePagesFor(pageFlip.getCurrentPageIndex() + 1);
