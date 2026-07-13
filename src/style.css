@@ -81,7 +81,6 @@ body {
   transform: translate(-50%, -50%);
   display: block;
   transition: width 0.7s ease;
-  filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.55));
   z-index: 1;
 }
 
