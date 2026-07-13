@@ -371,7 +371,7 @@ body {
        track height (28px), with a fixed px gap after that - so the gap
        itself stays constant across viewport heights instead of scaling
        like a plain vh offset would. */
-    top: calc(5vh + 28px + 10px);
+    top: calc(5vh + 28px + 6px);
     transform: none;
     flex-direction: row;
     gap: 30px;
@@ -452,7 +452,7 @@ body {
     }
 
     #toc {
-      top: calc(5dvh + 28px + 10px);
+      top: calc(5dvh + 28px + 6px);
     }
 
     #progress {
@@ -479,7 +479,7 @@ body {
     }
 
     #toc {
-      top: calc(5svh + 28px + 10px);
+      top: calc(5svh + 28px + 6px);
     }
 
     #progress {
