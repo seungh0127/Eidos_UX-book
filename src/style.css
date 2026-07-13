@@ -346,6 +346,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  /* Suppress the default mobile tap-highlight flash (shows as a blue box
+     on Android/Chrome) and the focus ring some browsers substitute it
+     with, since the circular background already provides tap feedback. */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 #nav-buttons button img {
