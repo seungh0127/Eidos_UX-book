@@ -75,7 +75,17 @@ export function Toc({ visiblePages, onSelect }: TocProps) {
           }}
           type="button"
           className={`toc-item${active.has(section.name) ? " active" : ""}`}
-          onClick={() => onSelect(section.startPage)}
+          onClick={(event) => {
+            // Center the tapped item immediately rather than waiting on the
+            // book's own (often slower, sometimes large-jump-limited) page
+            // flip to resolve back into a `currentName` change.
+            event.currentTarget.scrollIntoView({
+              behavior: "smooth",
+              inline: "center",
+              block: "nearest",
+            });
+            onSelect(section.startPage);
+          }}
         >
           {section.name}
         </button>

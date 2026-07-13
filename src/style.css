@@ -365,12 +365,12 @@ body {
   }
 
   #toc {
-    left: 7vw;
-    right: 7vw;
+    left: 0;
+    right: 0;
     top: 10.5vh;
     transform: none;
     flex-direction: row;
-    gap: 18px;
+    gap: 22px;
     overflow-x: auto;
     scrollbar-width: none;
     cursor: grab;
@@ -394,11 +394,11 @@ body {
 
   .toc-item {
     flex: none;
-    font-size: 12px;
+    font-size: 15px;
   }
 
   #stage-wrap {
-    top: 50%;
+    top: 46%;
   }
 
   #stage,
@@ -424,7 +424,7 @@ body {
     display: flex;
     position: absolute;
     left: 50%;
-    bottom: 6vh;
+    bottom: 9vh;
     transform: translateX(-50%);
     gap: 28px;
     z-index: 5;
