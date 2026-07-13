@@ -465,6 +465,33 @@ body {
   }
 }
 
+/* Some Android browsers (notably Samsung Internet) accept `dvh` in a
+   feature query but don't actually shrink it when their own persistent
+   toolbar is showing, silently re-introducing the `vh` problem above.
+   `svh` is defined as the *smallest possible* viewport - i.e. it assumes
+   that browser chrome is always showing - which is the safe, conservative
+   number regardless of how a given browser's `dvh` actually behaves.
+   Layered after the `dvh` block so it wins wherever it's supported. */
+@supports (height: 100svh) {
+  @media (max-width: 760px) {
+    :root {
+      --page-size: min(66svh, 88vw, 570px);
+    }
+
+    #toc {
+      top: calc(5svh + 28px + 10px);
+    }
+
+    #progress {
+      top: 5svh;
+    }
+
+    #nav-buttons {
+      bottom: calc(13svh + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
 @media (max-height: 520px) and (min-width: 761px) {
   :root {
     --page-size: min(64vh, 31vw);
