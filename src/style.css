@@ -112,6 +112,31 @@ body {
   cursor: pointer;
 }
 
+/* Front-cover spine: a soft perspective shading where the cover wraps
+   around the spine, plus a thin embossed crease a little further in -
+   like a hardcover that's been opened and closed before. Only shown
+   while the closed cover is at rest (matches the #book crop above). */
+#stage.clipped.cover-front::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+      90deg,
+      transparent calc(9% - 2px),
+      rgba(0, 0, 0, 0.35) calc(9% - 1px),
+      rgba(255, 255, 255, 0.16) 9%,
+      transparent calc(9% + 2px)
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.22) 3%,
+      rgba(0, 0, 0, 0.08) 7%,
+      transparent 14%
+    );
+}
+
 /* Page-edge thickness: a paper-stack texture at the outer edges of the
    book, sized proportionally to how many pages have been turned vs.
    remain, like the fore-edge of a physical book. */
