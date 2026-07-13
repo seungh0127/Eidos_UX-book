@@ -8,6 +8,7 @@ import {
 } from "./components/Book";
 import { Toc } from "./components/Toc";
 import { ProgressBar } from "./components/ProgressBar";
+import { NavButtons } from "./components/NavButtons";
 import { TOTAL_PAGES, visiblePagesForIndex } from "./data";
 
 export function App() {
@@ -85,6 +86,14 @@ export function App() {
   const jumpToPage = useCallback((page: number) => {
     const clamped = Math.min(Math.max(Math.round(page), 1), TOTAL_PAGES);
     bookRef.current?.pageFlip().turnToPage(clamped - 1);
+  }, []);
+
+  const goToPrevPage = useCallback(() => {
+    bookRef.current?.pageFlip().flipPrev();
+  }, []);
+
+  const goToNextPage = useCallback(() => {
+    bookRef.current?.pageFlip().flipNext();
   }, []);
 
   useEffect(() => {
@@ -172,6 +181,7 @@ export function App() {
       </div>
 
       <ProgressBar page={visiblePages[0]} onSeek={jumpToPage} />
+      <NavButtons onPrev={goToPrevPage} onNext={goToNextPage} />
     </div>
   );
 }

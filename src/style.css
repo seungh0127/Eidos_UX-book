@@ -329,6 +329,32 @@ body {
   pointer-events: none;
 }
 
+/* Prev/next controls: mobile-only (see the 760px media query below). */
+#nav-buttons {
+  display: none;
+}
+
+#nav-buttons button {
+  appearance: none;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#nav-buttons button img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
 /* In portrait mode StPageFlip shows one page at a time. Give it a true
    one-page parent on narrow screens; keeping the desktop two-page parent
    here would make the library shrink the page unnecessarily. */
@@ -341,12 +367,18 @@ body {
   #toc {
     left: 7vw;
     right: 7vw;
-    top: 4.5vh;
+    top: 10.5vh;
     transform: none;
     flex-direction: row;
     gap: 18px;
     overflow-x: auto;
     scrollbar-width: none;
+    cursor: grab;
+    /* Generous side padding (rather than `justify-content: center`, which
+       fights a scrollable container and pins scrollLeft's minimum at an
+       already-centered position) so the first/last item can still scroll
+       all the way to the container's center. */
+    padding: 0 42%;
     mask-image: linear-gradient(
       90deg,
       transparent,
@@ -382,10 +414,20 @@ body {
   }
 
   #progress {
-    top: auto;
-    bottom: 3.5vh;
+    top: 5vh;
+    bottom: auto;
     width: 86vw;
     min-width: 0;
+  }
+
+  #nav-buttons {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    bottom: 6vh;
+    transform: translateX(-50%);
+    gap: 28px;
+    z-index: 5;
   }
 }
 
