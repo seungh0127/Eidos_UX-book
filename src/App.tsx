@@ -132,6 +132,30 @@ export function App() {
     };
   }, []);
 
+  // `vh`/`dvh`/`svh` all failed to track the real visible viewport on some
+  // Android browsers (Samsung Internet in particular parses `dvh`/`svh` but
+  // doesn't size them against its own persistent toolbar), which left
+  // mobile controls sitting under that toolbar. `visualViewport` is the one
+  // API that reliably reports the actual visible height, so mirror it into
+  // a CSS custom property (1% of it, so call sites can keep writing plain
+  // multiples like `vh`) that the mobile layout reads instead.
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    function updateVvh() {
+      const height = viewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty("--vvh", `${height / 100}px`);
+    }
+    updateVvh();
+    viewport?.addEventListener("resize", updateVvh);
+    viewport?.addEventListener("scroll", updateVvh);
+    window.addEventListener("resize", updateVvh);
+    return () => {
+      viewport?.removeEventListener("resize", updateVvh);
+      viewport?.removeEventListener("scroll", updateVvh);
+      window.removeEventListener("resize", updateVvh);
+    };
+  }, []);
+
   const isCover = visiblePages.length === 1 && visiblePages[0] === 1;
   const isBackCover =
     visiblePages.length === 1 && visiblePages[0] === TOTAL_PAGES;

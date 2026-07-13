@@ -360,18 +360,34 @@ body {
    here would make the library shrink the page unnecessarily. */
 @media (max-width: 760px) {
   :root {
-    --page-size: min(66vh, 88vw, 570px);
+    /* `--vvh` is 1% of the *actual visible* viewport height, kept in sync
+       with window.visualViewport by the effect in App.tsx. Neither `vh`
+       (pinned to the largest possible viewport) nor `dvh`/`svh` (which
+       some Android browsers, notably Samsung Internet, parse but don't
+       size correctly against their own persistent toolbar) can be trusted
+       here, so this JS-driven value is the source of truth; the `1vh`
+       fallback only covers the brief window before that effect runs. */
+    --page-size: min(calc(var(--vvh, 1vh) * 66), 88vw, 570px);
     --edge-max: calc(var(--page-size) * 0.015);
+  }
+
+  /* `#app`'s own height must also track the real visible viewport - a
+     `bottom` offset scaled down by a shrinking `--vvh` only stays clear of
+     a browser's bottom chrome if the container it's measured from shrinks
+     too. Left at a static `100vh`, that offset instead pulls the button
+     further *into* the hidden area as the toolbar grows. */
+  #app {
+    height: calc(var(--vvh, 1vh) * 100);
   }
 
   #toc {
     left: 0;
     right: 0;
-    /* Positioned relative to the progress bar's own top (5vh) plus its
-       track height (28px), with a fixed px gap after that - so the gap
-       itself stays constant across viewport heights instead of scaling
-       like a plain vh offset would. */
-    top: calc(5vh + 28px + 6px);
+    /* Positioned relative to the progress bar's own top (5 vvh units)
+       plus its track height (28px), with a fixed px gap after that - so
+       the gap itself stays constant across viewport heights instead of
+       scaling like a plain vh offset would. */
+    top: calc(var(--vvh, 1vh) * 5 + 28px + 6px);
     transform: none;
     flex-direction: row;
     gap: 30px;
@@ -418,7 +434,7 @@ body {
   }
 
   #progress {
-    top: 5vh;
+    top: calc(var(--vvh, 1vh) * 5);
     bottom: auto;
     width: 86vw;
     min-width: 0;
@@ -428,67 +444,13 @@ body {
     display: flex;
     position: absolute;
     left: 50%;
-    /* `13vh` alone sits on Android's collapsible address bar / gesture-nav
-       area, since `vh` is pinned to the largest possible viewport and
-       ignores that browser chrome. `env(safe-area-inset-bottom)` adds
-       whatever inset the browser actually reports for that area (0 where
-       unsupported, so this is a no-op elsewhere). */
-    bottom: calc(13vh + env(safe-area-inset-bottom, 0px));
+    /* `env(safe-area-inset-bottom)` adds whatever inset the browser
+       actually reports for its own bottom chrome (0 where unsupported,
+       so this is a no-op elsewhere). */
+    bottom: calc(var(--vvh, 1vh) * 13 + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     gap: 28px;
     z-index: 5;
-  }
-}
-
-/* `dvh` tracks the *currently visible* viewport as browser chrome
-   collapses/expands, unlike `vh` which stays pinned to the largest
-   possible one - the actual fix for controls drifting under Android's
-   address bar or gesture-nav area. Layered on top of the `vh` rules
-   above via a feature query so unsupported browsers keep that fallback. */
-@supports (height: 100dvh) {
-  @media (max-width: 760px) {
-    :root {
-      --page-size: min(66dvh, 88vw, 570px);
-    }
-
-    #toc {
-      top: calc(5dvh + 28px + 6px);
-    }
-
-    #progress {
-      top: 5dvh;
-    }
-
-    #nav-buttons {
-      bottom: calc(13dvh + env(safe-area-inset-bottom, 0px));
-    }
-  }
-}
-
-/* Some Android browsers (notably Samsung Internet) accept `dvh` in a
-   feature query but don't actually shrink it when their own persistent
-   toolbar is showing, silently re-introducing the `vh` problem above.
-   `svh` is defined as the *smallest possible* viewport - i.e. it assumes
-   that browser chrome is always showing - which is the safe, conservative
-   number regardless of how a given browser's `dvh` actually behaves.
-   Layered after the `dvh` block so it wins wherever it's supported. */
-@supports (height: 100svh) {
-  @media (max-width: 760px) {
-    :root {
-      --page-size: min(66svh, 88vw, 570px);
-    }
-
-    #toc {
-      top: calc(5svh + 28px + 6px);
-    }
-
-    #progress {
-      top: 5svh;
-    }
-
-    #nav-buttons {
-      bottom: calc(13svh + env(safe-area-inset-bottom, 0px));
-    }
   }
 }
 
