@@ -353,6 +353,11 @@ body {
      with, since the circular background already provides tap feedback. */
   -webkit-tap-highlight-color: transparent;
   outline: none;
+  transition: filter 0.15s ease;
+}
+
+#nav-buttons button:active {
+  filter: brightness(0.8);
 }
 
 #nav-buttons button img {
