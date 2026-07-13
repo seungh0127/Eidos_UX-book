@@ -418,7 +418,7 @@ body {
   }
 
   #stage-wrap {
-    top: 46%;
+    top: 48%;
   }
 
   #stage,
@@ -447,7 +447,7 @@ body {
     /* `env(safe-area-inset-bottom)` adds whatever inset the browser
        actually reports for its own bottom chrome (0 where unsupported,
        so this is a no-op elsewhere). */
-    bottom: calc(var(--vvh, 1vh) * 13 + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--vvh, 1vh) * 11 + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     gap: 28px;
     z-index: 5;
