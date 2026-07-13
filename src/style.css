@@ -367,10 +367,10 @@ body {
   #toc {
     left: 0;
     right: 0;
-    top: 9vh;
+    top: 9.5vh;
     transform: none;
     flex-direction: row;
-    gap: 22px;
+    gap: 30px;
     overflow-x: auto;
     scrollbar-width: none;
     cursor: grab;
@@ -448,7 +448,7 @@ body {
     }
 
     #toc {
-      top: 9dvh;
+      top: 9.5dvh;
     }
 
     #progress {
