@@ -63,15 +63,15 @@ body {
   color: var(--toc-active);
 }
 
-/* Book stage: a clipping viewport that, at rest, shows either one
-   page-width (closed cover / back cover) or the full spread. StPageFlip
-   always paints a full two-page-wide canvas (with a white fill under the
-   empty slot when only the cover is shown), so we clip that empty half
-   away instead of trying to hide it with CSS on the canvas itself.
-   While a flip/drag/hover-corner animation is running, StPageFlip draws
-   the turning page as a free-floating overlay that naturally bulges
-   outside the flat page rectangle - so clipping is switched off for that
-   window (see `.clipped` toggling in main.ts) to let it render naturally. */
+/* Book stage: at rest, shows either one page-width (closed cover / back
+   cover) or the full spread. `#stage` narrows to a single page width to
+   center a lone cover in the viewport - purely a centering convenience,
+   never a clip (the custom 3D sheets below never paint anything into the
+   empty half in the first place, so there's nothing to hide). The instant
+   any flip/drag/hover-peek interaction starts, main.ts drops back to the
+   full two-page width via `onActivityChange` so the turning sheet has the
+   full spread's worth of room to rotate through and isn't visually cut
+   short by the narrower resting frame. */
 #stage-wrap {
   position: absolute;
   left: 50%;
@@ -93,7 +93,6 @@ body {
 
 #stage.clipped {
   width: var(--page-size);
-  overflow: hidden;
 }
 
 #book {
@@ -102,14 +101,43 @@ body {
   top: 0;
   width: calc(var(--page-size) * 2);
   height: var(--page-size);
+  perspective: calc(var(--page-size) * 3);
 }
 
 #stage.clipped.cover-front #book {
   transform: translateX(-50%);
 }
 
-#book :where(canvas) {
+/* Each sheet is a real double-sided leaf: front face shows one page,
+   back face shows the next, and it hinges open/closed around the spine
+   (the shared left edge at the book's horizontal center) via rotateY. */
+.bf-sheet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.7s ease;
+  will-change: transform;
   cursor: pointer;
+}
+
+#book.bf-instant .bf-sheet {
+  transition: none !important;
+}
+
+.bf-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.bf-face--back {
+  transform: rotateY(180deg);
 }
 
 /* Front-cover spine: a soft perspective shading where the cover wraps
