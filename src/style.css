@@ -367,7 +367,11 @@ body {
   #toc {
     left: 0;
     right: 0;
-    top: 9.5vh;
+    /* Positioned relative to the progress bar's own top (5vh) plus its
+       track height (28px), with a fixed px gap after that - so the gap
+       itself stays constant across viewport heights instead of scaling
+       like a plain vh offset would. */
+    top: calc(5vh + 28px + 10px);
     transform: none;
     flex-direction: row;
     gap: 30px;
@@ -448,7 +452,7 @@ body {
     }
 
     #toc {
-      top: 9.5dvh;
+      top: calc(5dvh + 28px + 10px);
     }
 
     #progress {
