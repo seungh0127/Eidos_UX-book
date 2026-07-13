@@ -100,6 +100,29 @@ export function App() {
     return () => window.removeEventListener("keydown", handleKeydown);
   }, []);
 
+  // The stage/book/page-edge width transitions exist for the cover
+  // open-close animation, but they also fire on every `--page-size` change
+  // from a viewport resize. Since a resize can update `--page-size` many
+  // times per second while those transitions run on different durations,
+  // the pieces catch up at different rates and visibly drift apart mid-drag.
+  // Suspend the transitions while actively resizing so everything tracks
+  // the viewport instantly instead.
+  useEffect(() => {
+    let timeoutId: number;
+    function handleResize() {
+      document.documentElement.classList.add("resizing");
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        document.documentElement.classList.remove("resizing");
+      }, 150);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
   const isCover = visiblePages.length === 1 && visiblePages[0] === 1;
   const isBackCover =
     visiblePages.length === 1 && visiblePages[0] === TOTAL_PAGES;

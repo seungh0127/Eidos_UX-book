@@ -413,3 +413,10 @@ body {
     transition-duration: 0.01ms;
   }
 }
+
+html.resizing #stage,
+html.resizing #stage-wrap,
+html.resizing #book,
+html.resizing .page-edge {
+  transition: none !important;
+}
