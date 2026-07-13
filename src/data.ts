@@ -1,3 +1,10 @@
+export const TOTAL_PAGES = 112;
+
+export function pageImageSrc(pageNumber: number): string {
+  const base = import.meta.env.BASE_URL;
+  return `${base}pages/page-${String(pageNumber).padStart(3, "0")}.jpg`;
+}
+
 export interface TocSection {
   name: string;
   startPage: number;
@@ -17,7 +24,7 @@ export const TOC_SECTIONS: TocSection[] = [
   { name: "Branding", startPage: 98, endPage: 107 },
 ];
 
-function activeSectionNames(visiblePages: number[]): Set<string> {
+export function activeSectionNames(visiblePages: number[]): Set<string> {
   const active = new Set<string>();
   for (const page of visiblePages) {
     for (const section of TOC_SECTIONS) {
@@ -29,32 +36,17 @@ function activeSectionNames(visiblePages: number[]): Set<string> {
   return active;
 }
 
-export interface TocController {
-  update(visiblePages: number[]): void;
-}
-
-export function createToc(
-  container: HTMLElement,
-  onSelect: (page: number) => void
-): TocController {
-  const itemsByName = new Map<string, HTMLButtonElement>();
-
-  for (const section of TOC_SECTIONS) {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "toc-item";
-    item.textContent = section.name;
-    item.addEventListener("click", () => onSelect(section.startPage));
-    container.appendChild(item);
-    itemsByName.set(section.name, item);
-  }
-
-  return {
-    update(visiblePages) {
-      const active = activeSectionNames(visiblePages);
-      itemsByName.forEach((item, name) => {
-        item.classList.toggle("active", active.has(name));
-      });
-    },
-  };
+// Mirrors StPageFlip's own pairing for a `showCover` book: the cover
+// (page 1) and back cover (last page) are shown alone; every page in
+// between is paired left/right, and StPageFlip always reports the
+// smaller (left, always even 1-indexed) page of the spread as current.
+export function visiblePagesForIndex(
+  pageIndex: number,
+  portrait = false
+): number[] {
+  const page = pageIndex + 1;
+  if (page <= 1) return [1];
+  if (page >= TOTAL_PAGES) return [TOTAL_PAGES];
+  if (portrait) return [page];
+  return [page, page + 1];
 }

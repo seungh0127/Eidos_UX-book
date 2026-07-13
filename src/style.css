@@ -2,10 +2,10 @@
   --bg: #131313;
   --toc-inactive: rgba(255, 255, 255, 0.3);
   --toc-active: rgba(255, 255, 255, 1);
-  --page-size: min(55vh, 31vw);
+  --page-size: min(70vh, 39vw);
   --edge-max: calc(var(--page-size) * 0.02);
-  --progress-bar-height: 8px;
-  --progress-pill-height: 8px;
+  --progress-bar-height: 7px;
+  --progress-pill-height: 7px;
   --progress-pill-width: 38px;
 }
 
@@ -39,8 +39,10 @@ body {
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 0.9vh;
+  gap: 0.75vh;
   z-index: 5;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .toc-item {
@@ -52,47 +54,51 @@ body {
   text-align: left;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  font-size: clamp(11px, 0.8vw, 15px);
+  font-size: clamp(10px, 0.74vw, 14px);
   line-height: 1.5;
   color: var(--toc-inactive);
   cursor: pointer;
-  transition: color 0.35s ease;
+  transition: color 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .toc-item.active {
   color: var(--toc-active);
 }
 
-/* Book stage: at rest, shows either one page-width (closed cover / back
-   cover) or the full spread. `#stage` narrows to a single page width to
-   center a lone cover in the viewport - purely a centering convenience,
-   never a clip (the custom 3D sheets below never paint anything into the
-   empty half in the first place, so there's nothing to hide). The instant
-   any flip/drag/hover-peek interaction starts, main.ts drops back to the
-   full two-page width via `onActivityChange` so the turning sheet has the
-   full spread's worth of room to rotate through and isn't visually cut
-   short by the narrower resting frame. */
+/* Book stage: `#stage-wrap` is the single width source for both the book
+   and its paper-stack edges. It transitions between one page (a closed
+   cover) and two pages (an open spread), keeping the edges attached at
+   every animation frame and through responsive resizes. */
 #stage-wrap {
   position: absolute;
   left: 50%;
-  top: 47.7%;
+  top: 50%;
   height: var(--page-size);
+  width: calc(var(--page-size) * 2);
   transform: translate(-50%, -50%);
-  display: flex;
-  align-items: stretch;
+  display: block;
+  transition: width 0.7s ease;
   filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.55));
   z-index: 1;
 }
 
+#stage-wrap.clipped {
+  width: var(--page-size);
+}
+
 #stage {
   position: relative;
-  width: calc(var(--page-size) * 2);
+  z-index: 2;
+  width: 100%;
   height: var(--page-size);
   overflow: visible;
 }
 
 #stage.clipped {
-  width: var(--page-size);
+  width: 100%;
 }
 
 #book {
@@ -101,75 +107,155 @@ body {
   top: 0;
   width: calc(var(--page-size) * 2);
   height: var(--page-size);
-  perspective: calc(var(--page-size) * 3);
+  transition: transform 0.7s ease;
 }
 
 #stage.clipped.cover-front #book {
   transform: translateX(-50%);
 }
 
-/* Each sheet is a real double-sided leaf: front face shows one page,
-   back face shows the next, and it hinges open/closed around the spine
-   (the shared left edge at the book's horizontal center) via rotateY. */
-.bf-sheet {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 50%;
+/* react-pageflip renders `.stf__parent` as a plain child of #book with no
+   explicit size (it only relies on `autoSize`, which we turn off so our
+   own CSS/vh-vw sizing drives layout instead). On top of that, page-flip's
+   own injected stylesheet has a `.sft__wrapper` typo, so its intended
+   `.stf__wrapper { width:100%; ... }` rule never applies either. Both
+   gaps leave `.stf__block` (pages are absolutely positioned inside it,
+   at 100% of this chain) with nothing to size against, collapsing to
+   zero - restore the whole chain explicitly here. */
+#book .stf__parent {
+  width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
-  transform-origin: left center;
-  transition: transform 0.7s ease;
-  will-change: transform;
-  cursor: pointer;
+  min-width: 0 !important;
+  min-height: 0 !important;
 }
 
-#book.bf-instant .bf-sheet {
-  transition: none !important;
+#book .stf__wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.bf-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+.book-page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  overflow: hidden;
 }
 
-.bf-face--back {
-  transform: rotateY(180deg);
+.book-page img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
 }
 
-/* Front-cover spine: a soft perspective shading where the cover wraps
-   around the spine, plus a thin embossed crease a little further in -
-   like a hardcover that's been opened and closed before. Only shown
-   while the closed cover is at rest (matches the #book crop above). */
-#stage.clipped.cover-front::after {
+.book-page--cover {
+  background: #2180f5;
+}
+
+/* The reference cover has a narrow, dark wrap at the binding edge and a
+   thin raised highlight about 3.4% in from that edge. Keep this treatment
+   on the actual cover DOM element (not the stage) so it remains physically
+   attached while react-pageflip rotates the cover. */
+.book-page--front-cover::after,
+.book-page--back-cover::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
+}
+
+.book-page--front-cover::after {
   background: linear-gradient(
       90deg,
-      transparent calc(9% - 2px),
-      rgba(0, 0, 0, 0.35) calc(9% - 1px),
-      rgba(255, 255, 255, 0.16) 9%,
-      transparent calc(9% + 2px)
+      rgba(4, 50, 124, 0.46) 0%,
+      rgba(8, 65, 153, 0.34) 1.6%,
+      rgba(14, 91, 188, 0.19) 2.9%,
+      rgba(68, 165, 255, 0.64) 3.28%,
+      rgba(45, 141, 239, 0.72) 3.48%,
+      rgba(2, 62, 143, 0.2) 3.66%,
+      transparent 4.25%
     ),
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0.22) 3%,
-      rgba(0, 0, 0, 0.08) 7%,
-      transparent 14%
+      rgba(0, 28, 82, 0.12) 0%,
+      rgba(0, 34, 92, 0.08) 26%,
+      transparent 58%,
+      rgba(54, 156, 255, 0.08) 100%
     );
+  box-shadow: inset 0 -1px rgba(0, 28, 70, 0.12);
+}
+
+/* Open-spread gutter shading. Each half owns its shadow so the curvature
+   stays attached to the paper while a soft page starts to turn. The two
+   mirrored gradients meet at the spine and fade gently into the spread. */
+#stage:not(.clipped) .book-page:not(.book-page--cover).--left::after,
+#stage:not(.clipped) .book-page:not(.book-page--cover).--right::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#stage:not(.clipped) .book-page:not(.book-page--cover).--left::after {
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(12, 18, 28, 0.025) 38%,
+    rgba(8, 12, 18, 0.09) 76%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+}
+
+#stage:not(.clipped) .book-page:not(.book-page--cover).--right::after {
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(8, 12, 18, 0.09) 24%,
+    rgba(12, 18, 28, 0.025) 62%,
+    transparent 100%
+  );
+}
+
+.book-page--back-cover::after {
+  background: linear-gradient(
+      270deg,
+      rgba(4, 50, 124, 0.46) 0%,
+      rgba(8, 65, 153, 0.34) 1.6%,
+      rgba(14, 91, 188, 0.19) 2.9%,
+      rgba(68, 165, 255, 0.64) 3.28%,
+      rgba(45, 141, 239, 0.72) 3.48%,
+      rgba(2, 62, 143, 0.2) 3.66%,
+      transparent 4.25%
+    ),
+    linear-gradient(
+      270deg,
+      rgba(0, 28, 82, 0.12) 0%,
+      rgba(0, 34, 92, 0.08) 26%,
+      transparent 58%,
+      rgba(54, 156, 255, 0.08) 100%
+    );
+  box-shadow: inset 0 -1px rgba(0, 28, 70, 0.12);
 }
 
 /* Page-edge thickness: a paper-stack texture at the outer edges of the
    book, sized proportionally to how many pages have been turned vs.
    remain, like the fore-edge of a physical book. */
 .page-edge {
-  flex: none;
+  position: absolute;
+  z-index: 1;
+  top: 0;
   height: 100%;
   width: 0;
   transition: width 0.4s ease;
@@ -185,14 +271,17 @@ body {
       transparent 4px
     ),
     linear-gradient(180deg, #e9e9e9, #d4d4d4 50%, #e9e9e9);
+  backface-visibility: hidden;
 }
 
 #edge-left {
+  right: 100%;
   width: calc(var(--edge-max) * var(--ratio, 0));
   border-radius: 3px 0 0 3px;
 }
 
 #edge-right {
+  left: 100%;
   width: calc(var(--edge-max) * var(--ratio, 0));
   border-radius: 0 3px 3px 0;
 }
@@ -203,7 +292,7 @@ body {
 #progress {
   position: absolute;
   left: 50%;
-  top: 83.4vh;
+  top: 90vh;
   transform: translateX(-50%);
   width: 45vw;
   min-width: 260px;
@@ -239,4 +328,89 @@ body {
   border-radius: 999px;
   background: #ffffff;
   pointer-events: none;
+}
+
+/* In portrait mode StPageFlip shows one page at a time. Give it a true
+   one-page parent on narrow screens; keeping the desktop two-page parent
+   here would make the library shrink the page unnecessarily. */
+@media (max-width: 760px) {
+  :root {
+    --page-size: min(66vh, 88vw, 570px);
+    --edge-max: calc(var(--page-size) * 0.015);
+  }
+
+  #toc {
+    left: 7vw;
+    right: 7vw;
+    top: 4.5vh;
+    transform: none;
+    flex-direction: row;
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12px,
+      #000 calc(100% - 12px),
+      transparent
+    );
+  }
+
+  #toc::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc-item {
+    flex: none;
+    font-size: 12px;
+  }
+
+  #stage-wrap {
+    top: 50%;
+  }
+
+  #stage,
+  #stage.clipped,
+  #stage-wrap,
+  #stage-wrap.clipped,
+  #book {
+    width: var(--page-size);
+  }
+
+  #stage.clipped.cover-front #book {
+    transform: none;
+  }
+
+  #progress {
+    top: auto;
+    bottom: 3.5vh;
+    width: 86vw;
+    min-width: 0;
+  }
+}
+
+@media (max-height: 520px) and (min-width: 761px) {
+  :root {
+    --page-size: min(64vh, 31vw);
+  }
+
+  #stage-wrap {
+    top: 50%;
+  }
+
+  #progress {
+    top: auto;
+    bottom: 2.5vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stage,
+  #stage-wrap,
+  #book,
+  .page-edge,
+  .toc-item {
+    transition-duration: 0.01ms;
+  }
 }
