@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TOC_SECTIONS, activeSectionNames } from "../data";
 
 interface TocProps {
@@ -15,6 +15,19 @@ export function Toc({ visiblePages, onSelect }: TocProps) {
 
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  // A tap should recolor and recenter its item together, but the real
+  // `active` set only updates once the book's page flip actually resolves
+  // (which can lag, or even fail to land for a far jump). Track the tapped
+  // section separately so the highlight moves in lockstep with the scroll,
+  // then let it go once the book catches up to confirm it.
+  const [pendingActive, setPendingActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pendingActive && currentName === pendingActive) {
+      setPendingActive(null);
+    }
+  }, [currentName, pendingActive]);
 
   // On the mobile horizontal layout the current section should sit centered
   // in the scroll area rather than just becoming visible at an edge.
@@ -74,11 +87,13 @@ export function Toc({ visiblePages, onSelect }: TocProps) {
             else itemRefs.current.delete(section.name);
           }}
           type="button"
-          className={`toc-item${active.has(section.name) ? " active" : ""}`}
+          className={`toc-item${(pendingActive ? section.name === pendingActive : active.has(section.name)) ? " active" : ""}`}
           onClick={(event) => {
-            // Center the tapped item immediately rather than waiting on the
-            // book's own (often slower, sometimes large-jump-limited) page
-            // flip to resolve back into a `currentName` change.
+            // Center the tapped item and recolor it immediately, rather
+            // than waiting on the book's own (often slower, sometimes
+            // large-jump-limited) page flip to resolve into a real
+            // `currentName`/`active` change.
+            setPendingActive(section.name);
             event.currentTarget.scrollIntoView({
               behavior: "smooth",
               inline: "center",

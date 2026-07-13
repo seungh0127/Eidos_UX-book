@@ -367,7 +367,7 @@ body {
   #toc {
     left: 0;
     right: 0;
-    top: 10.5vh;
+    top: 8vh;
     transform: none;
     flex-direction: row;
     gap: 22px;
@@ -424,7 +424,7 @@ body {
     display: flex;
     position: absolute;
     left: 50%;
-    bottom: 9vh;
+    bottom: 13vh;
     transform: translateX(-50%);
     gap: 28px;
     z-index: 5;
