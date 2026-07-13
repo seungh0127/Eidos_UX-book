@@ -367,7 +367,7 @@ body {
   #toc {
     left: 0;
     right: 0;
-    top: 8vh;
+    top: 9vh;
     transform: none;
     flex-direction: row;
     gap: 22px;
