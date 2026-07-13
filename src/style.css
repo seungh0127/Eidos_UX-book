@@ -424,10 +424,40 @@ body {
     display: flex;
     position: absolute;
     left: 50%;
-    bottom: 13vh;
+    /* `13vh` alone sits on Android's collapsible address bar / gesture-nav
+       area, since `vh` is pinned to the largest possible viewport and
+       ignores that browser chrome. `env(safe-area-inset-bottom)` adds
+       whatever inset the browser actually reports for that area (0 where
+       unsupported, so this is a no-op elsewhere). */
+    bottom: calc(13vh + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     gap: 28px;
     z-index: 5;
+  }
+}
+
+/* `dvh` tracks the *currently visible* viewport as browser chrome
+   collapses/expands, unlike `vh` which stays pinned to the largest
+   possible one - the actual fix for controls drifting under Android's
+   address bar or gesture-nav area. Layered on top of the `vh` rules
+   above via a feature query so unsupported browsers keep that fallback. */
+@supports (height: 100dvh) {
+  @media (max-width: 760px) {
+    :root {
+      --page-size: min(66dvh, 88vw, 570px);
+    }
+
+    #toc {
+      top: 9dvh;
+    }
+
+    #progress {
+      top: 5dvh;
+    }
+
+    #nav-buttons {
+      bottom: calc(13dvh + env(safe-area-inset-bottom, 0px));
+    }
   }
 }
 
