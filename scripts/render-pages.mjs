@@ -11,8 +11,12 @@ const ROOT = path.resolve(__dirname, "..");
 const PDF_PATH = path.join(ROOT, "assets", "Eidos_UX Book_0802.pdf");
 const OUT_DIR = path.join(ROOT, "public", "pages");
 
-const TARGET_SIZE = 1600; // px, square page
-const JPEG_QUALITY = 0.85;
+// The book can render a page up to 1400 CSS px wide (Book.tsx's
+// maxWidth), which on a 2x-DPR display needs ~2800 physical px to stay
+// sharp. 2400px is a middle ground that covers most retina displays
+// without inflating file size too much further.
+const TARGET_SIZE = 2400; // px, square page
+const JPEG_QUALITY = 0.92;
 
 class NodeCanvasFactory {
   create(width, height) {

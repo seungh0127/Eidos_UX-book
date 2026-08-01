@@ -54,6 +54,7 @@ const Page = forwardRef<HTMLDivElement, { pageNumber: number }>(
           alt={`Page ${pageNumber}`}
           draggable={false}
           decoding="async"
+          loading={isCover ? "eager" : "lazy"}
         />
       </div>
     );
