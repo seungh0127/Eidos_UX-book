@@ -16,12 +16,11 @@ export const TOC_SECTIONS: TocSection[] = [
   { name: "Background", startPage: 8, endPage: 13 },
   { name: "Insight", startPage: 14, endPage: 17 },
   { name: "Define", startPage: 18, endPage: 23 },
-  { name: "Concept", startPage: 24, endPage: 31 },
-  { name: "Solution", startPage: 32, endPage: 39 },
-  { name: "Key Features", startPage: 40, endPage: 51 },
-  { name: "Scenario", startPage: 52, endPage: 87 },
-  { name: "Expectation", startPage: 88, endPage: 97 },
-  { name: "Branding", startPage: 98, endPage: 107 },
+  { name: "Concept", startPage: 24, endPage: 37 },
+  { name: "Solution", startPage: 38, endPage: 49 },
+  { name: "Key Features", startPage: 50, endPage: 61 },
+  { name: "Scenario", startPage: 62, endPage: 92 },
+  { name: "Expectation", startPage: 93, endPage: 107 },
 ];
 
 export function activeSectionNames(visiblePages: number[]): Set<string> {
