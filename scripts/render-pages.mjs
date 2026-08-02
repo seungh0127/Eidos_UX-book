@@ -8,7 +8,7 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, "..");
-const PDF_PATH = path.join(ROOT, "assets", "Eidos_UX Book_0802.pdf");
+const PDF_PATH = path.join(ROOT, "assets", "Eidos_UX Book_0803.pdf");
 const OUT_DIR = path.join(ROOT, "public", "pages");
 
 // The book can render a page up to 1400 CSS px wide (Book.tsx's
